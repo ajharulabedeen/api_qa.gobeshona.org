@@ -9,11 +9,11 @@
 		<version>3.3.0</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.bezkoder</groupId>
-	<artifactId>spring-boot-security-jwt</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>spring-boot-security-jwt</name>
-	<description>Demo project for Spring Boot Security - JWT</description>
+	<groupId>org.gobeshona</groupId>
+	<artifactId>gobeshona_api</artifactId>
+	<version>99.0.1</version>
+	<name>GobeshonaQA_API</name>
+	<description>Gobeshona QA API Service</description>
 
 	<properties>
 		<java.version>21</java.version>
