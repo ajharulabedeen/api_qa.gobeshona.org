@@ -9,11 +9,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 @Entity
-@Table(name = "users", 
-    uniqueConstraints = { 
-      @UniqueConstraint(columnNames = "username"),
-      @UniqueConstraint(columnNames = "email") 
-    })
+@Table(name = "users"
+//    uniqueConstraints = {
+//      @UniqueConstraint(columnNames = "username"),
+//      @UniqueConstraint(columnNames = "email")
+//    }
+    )
 public class User {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +24,7 @@ public class User {
   @Size(max = 20)
   private String username;
 
-  @NotBlank
+//  @NotBlank
   @Size(max = 50)
   @Email
   private String email;
