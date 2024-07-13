@@ -1,5 +1,9 @@
 package org.gobeshona.api.payload.response;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
 public class MessageResponse {
   private String message;
 
