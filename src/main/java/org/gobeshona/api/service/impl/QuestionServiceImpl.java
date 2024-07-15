@@ -34,24 +34,36 @@ public Question getQuestion(Long id) {
     @Override
     public Question createQuestion(Question question) {
         question.setCreatedAt(LocalDateTime.now());
+//        if(!question.getImages().isEmpty()) {
+//           List<Images> images = question.getImages();
+//           images.forEach((x)->{
+//
+//           });
+//        }
         return questionRepository.save(question);
     }
 
     @Override
     public Question updateQuestion(Question question, Long id) {
-        return null;
+        Question ques = questionRepository.findById(id).orElseThrow(()-> new RuntimeException("Question not found with id " + id));
+        ques.setTitle(question.getTitle());
+        ques.setDescription(question.getDescription());
+        ques.setAudioFilePath(question.getAudioFilePath());
+        questionRepository.save(ques);
+        return ques;
     }
 
     @Override
-    public String deleteQuestion(Long id) {
+    public Optional<MessageResponse> deleteQuestion(Long id) {
         Question question = questionRepository.findById(id).orElseThrow(()-> new UsernameNotFoundException("Question not found with id " + id));
 
 
 
             questionRepository.delete(question);
+            MessageResponse msg = new MessageResponse();
+            msg.setMessage("Question deleted successfully with id " + id);
 
-
-         return "Question with id " + id + " deleted successfully";
+         return Optional.of(msg);
 
     }
 }

@@ -16,6 +16,6 @@ public interface QuestionService {
 
     Question updateQuestion(Question question , Long id);
 
-    String deleteQuestion(Long id);
+    Optional<MessageResponse> deleteQuestion(Long id);
 
 }

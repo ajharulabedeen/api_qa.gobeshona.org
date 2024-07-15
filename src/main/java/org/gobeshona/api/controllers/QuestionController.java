@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/public")
@@ -42,8 +43,8 @@ public class QuestionController {
     }
 
     @DeleteMapping("/question/{id}")
-    public ResponseEntity<String> deleteQuestion( @PathVariable Long id) {
-        String ques = questionService.deleteQuestion(id);
+    public ResponseEntity<Optional<MessageResponse>> deleteQuestion(@PathVariable Long id) {
+        var ques = questionService.deleteQuestion(id);
         return new ResponseEntity<>(ques, HttpStatus.OK);
     }
 }
