@@ -1,5 +1,6 @@
 package org.gobeshona.api.security.services;
 
+import org.gobeshona.api.exception.UserDisabledException;
 import org.gobeshona.api.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,6 +21,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     User user = userRepository.findByUsername(username)
         .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
+
+    if (!user.getEnabled()) {
+      throw new UserDisabledException("User Disabled: " + username);
+    }
 
     return UserDetailsImpl.build(user);
   }
