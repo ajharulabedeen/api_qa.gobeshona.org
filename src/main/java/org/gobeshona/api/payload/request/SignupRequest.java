@@ -16,7 +16,7 @@ public class SignupRequest {
     @Email(message = "Email should be valid")
     private String email;
 
-    @NotEmpty(message = "Mobile number is required")
+//    @NotEmpty(message = "Mobile number is required")
     private String mobile;
 
     @NotNull(message = "Country code is required")

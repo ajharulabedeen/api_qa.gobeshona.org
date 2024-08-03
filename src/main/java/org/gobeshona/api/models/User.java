@@ -39,7 +39,7 @@ public class User {
   @Column(unique = true)
   private String email;
 
-  @Column(unique = true)
+//  @Column(unique = true)
   private String mobile;
 
   @NotNull(message = "Country code is required")

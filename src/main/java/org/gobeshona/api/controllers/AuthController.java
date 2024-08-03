@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 
 import jakarta.validation.Valid;
 
+import jakarta.validation.ValidationException;
+import org.gobeshona.api.models.AuthTypeConstants;
 import org.gobeshona.api.models.ERole;
 import org.gobeshona.api.models.Role;
 import org.gobeshona.api.models.User;
@@ -79,6 +81,16 @@ public class AuthController {
 
   @PostMapping("/signup")
   public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) throws Exception{
+
+    if (signUpRequest.getUsernameType().toLowerCase().equals(AuthTypeConstants.EMAIL.toLowerCase())) {
+      signUpRequest.setUsername(signUpRequest.getEmail());
+    } else if (signUpRequest.getUsernameType().toLowerCase().equals(AuthTypeConstants.MOBILE.toLowerCase())) {
+      signUpRequest.setUsername(signUpRequest.getMobile());
+    } else {
+      throw new ValidationException("Either email or mobile must be provided");
+    }
+
+
     if (userService.existsByUsername(signUpRequest.getUsername())) {
       return ResponseEntity
           .badRequest()
@@ -105,6 +117,7 @@ public class AuthController {
     Set<String> strRoles = signUpRequest.getRole();
     Set<Role> roles = new HashSet<>();
 
+//    todo: have to refactor.
     if (strRoles == null) {
       Role userRole = roleRepository.findByName(ERole.ROLE_USER)
           .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
