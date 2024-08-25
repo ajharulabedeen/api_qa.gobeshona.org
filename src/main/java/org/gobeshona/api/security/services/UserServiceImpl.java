@@ -57,8 +57,8 @@ public class UserServiceImpl implements UserService {
 
 
         // Validate verificationMethod
-        if (!AuthTypeConstants.EMAIL.equals(user.getVerificationMethod()) &&
-                !AuthTypeConstants.MOBILE.equals(user.getVerificationMethod())) {
+        if (!AuthTypeConstants.EMAIL.toLowerCase().equals(user.getVerificationMethod()) &&
+                !AuthTypeConstants.MOBILE.toLowerCase().equals(user.getVerificationMethod())) {
             throw new ValidationException("Invalid verification method");
         }
 
