@@ -15,6 +15,7 @@ import org.gobeshona.api.models.User;
 import org.gobeshona.api.payload.request.LoginRequest;
 import org.gobeshona.api.payload.request.SignupRequest;
 import org.gobeshona.api.payload.response.JwtResponse;
+import org.gobeshona.api.payload.response.JwtResponseWeb;
 import org.gobeshona.api.payload.response.MessageResponse;
 import org.gobeshona.api.security.jwt.JwtUtils;
 import org.gobeshona.api.security.services.UserDetailsImpl;
@@ -72,11 +73,36 @@ public class AuthController {
         .map(item -> item.getAuthority())
         .collect(Collectors.toList());
 
-    return ResponseEntity.ok(new JwtResponse(jwt,
-                         userDetails.getId(),
-                         userDetails.getUsername(),
-                         userDetails.getEmail(),
-                         roles));
+    JwtResponse jwtResponse = new JwtResponse(jwt,
+            userDetails.getId(),
+            userDetails.getUsername(),
+            userDetails.getEmail(),
+            roles);
+
+    return ResponseEntity.ok(jwtResponse);
+  }
+  @PostMapping("/web-signin")
+  public ResponseEntity<?> webAuthenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+
+    Authentication authentication = authenticationManager.authenticate(
+        new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+
+    SecurityContextHolder.getContext().setAuthentication(authentication);
+    String jwt = jwtUtils.generateJwtToken(authentication);
+
+    UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+    List<String> roles = userDetails.getAuthorities().stream()
+        .map(item -> item.getAuthority())
+        .collect(Collectors.toList());
+
+    JwtResponseWeb jwtResponse = new JwtResponseWeb(jwt,
+            userDetails.getId(),
+            userDetails.getUsername(),
+            userDetails.getPassword(),
+            userDetails.getEmail(),
+            roles);
+
+    return ResponseEntity.ok(jwtResponse);
   }
 
   @PostMapping("/signup")
