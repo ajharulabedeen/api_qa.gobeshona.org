@@ -12,6 +12,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -130,34 +133,66 @@ public class UserServiceImpl implements UserService {
     }
 
     public void resetPassword(String username) throws UserNotFoundException, UserDisabledException {
-//        User user = userRepository.findByUsername(username)
-//                .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
-//
-//        if (!user.getEnabled()) {
-//            throw new UserDisabledException("User is disabled. Please contact the admin.");
-//        }
-//
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
+
+        if (!user.getEnabled()) {
+            throw new UserDisabledException("User is disabled. Please contact the admin.");
+        }
+
         String newPassword = generateRandomPassword();
-//        String encryptedPassword = passwordEncoder.encode(newPassword);
-//
-//
-//        boolean passSendingStatus = false;
-//
-//        if ("email".equalsIgnoreCase(user.getVerificationMethod())) {
-//            passSendingStatus = emailService.sendEmail(user.getEmail(), newPassword);
-//        } else if ("mobile".equalsIgnoreCase(user.getVerificationMethod())) {
-//            passSendingStatus = smsService.sendSms(user.getMobile(), newPassword);
-//        }
+        String encryptedPassword = passwordEncoder.encode(newPassword);
 
-        emailService.sendEmail(username, newPassword);
 
-//        user.setPassword(encryptedPassword);
-//        userRepository.save(user);
+        boolean passSendingStatus = false;
+
+        if ("email".equalsIgnoreCase(user.getVerificationMethod())) {
+            passSendingStatus = emailService.sendEmail(user.getEmail(), newPassword);
+        } else if ("mobile".equalsIgnoreCase(user.getVerificationMethod())) {
+            passSendingStatus = smsService.sendSms(user.getMobile(), newPassword);
+        }
+
+        user.setPassword(encryptedPassword);
+        userRepository.save(user);
 
     }
 
     private String generateRandomPassword() {
-        return "12345678";
+        // Define the characters for different categories
+        String upperCaseLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String lowerCaseLetters = "abcdefghijklmnopqrstuvwxyz";
+        String digits = "0123456789";
+        String allCharacters = upperCaseLetters + lowerCaseLetters + digits;
+
+        SecureRandom random = new SecureRandom();
+        StringBuilder password = new StringBuilder();
+
+        // Ensure at least one character from each category is included
+        password.append(upperCaseLetters.charAt(random.nextInt(upperCaseLetters.length())));
+        password.append(lowerCaseLetters.charAt(random.nextInt(lowerCaseLetters.length())));
+        password.append(digits.charAt(random.nextInt(digits.length())));
+
+        // Fill the remaining 5 characters randomly from all characters
+        for (int i = 3; i < 8; i++) {
+            password.append(allCharacters.charAt(random.nextInt(allCharacters.length())));
+        }
+
+        // Shuffle the characters to ensure randomness
+        return shuffleString(password.toString());
+    }
+
+    // Method to shuffle the characters in a string to ensure randomness
+    private String shuffleString(String input) {
+        List<Character> characters = new ArrayList<>();
+        for (char c : input.toCharArray()) {
+            characters.add(c);
+        }
+        Collections.shuffle(characters);
+        StringBuilder result = new StringBuilder(characters.size());
+        for (char c : characters) {
+            result.append(c);
+        }
+        return result.toString();
     }
 
     @Override
