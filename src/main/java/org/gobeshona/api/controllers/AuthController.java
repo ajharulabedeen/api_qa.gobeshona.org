@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 import jakarta.validation.Valid;
 
 import jakarta.validation.ValidationException;
+import org.gobeshona.api.exception.UserDisabledException;
+import org.gobeshona.api.exception.UserNotFoundException;
 import org.gobeshona.api.models.AuthTypeConstants;
 import org.gobeshona.api.models.ERole;
 import org.gobeshona.api.models.Role;
@@ -17,22 +19,20 @@ import org.gobeshona.api.payload.request.SignupRequest;
 import org.gobeshona.api.payload.response.JwtResponse;
 import org.gobeshona.api.payload.response.JwtResponseWeb;
 import org.gobeshona.api.payload.response.MessageResponse;
+import org.gobeshona.api.payload.response.PasswordResetResponse;
 import org.gobeshona.api.security.jwt.JwtUtils;
 import org.gobeshona.api.security.services.UserDetailsImpl;
 import org.gobeshona.api.security.services.UserServiceImpl;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import org.gobeshona.api.repository.RoleRepository;
 
@@ -176,4 +176,20 @@ public class AuthController {
 
     return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
   }
+
+  @PostMapping("/reset-password")
+  public ResponseEntity<PasswordResetResponse> resetPassword(@RequestParam("username") String username) {
+    try {
+      userService.resetPassword(username);
+      return ResponseEntity.ok(new PasswordResetResponse(true, "New password has been sent to your mobile/email."));
+    } catch (UserNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new PasswordResetResponse(false, e.getMessage()));
+    } catch (UserDisabledException e) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new PasswordResetResponse(false, e.getMessage()));
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new PasswordResetResponse(false, "An error occurred while resetting the password."));
+    }
+  }
+
+
 }

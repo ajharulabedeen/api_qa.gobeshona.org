@@ -2,14 +2,13 @@ package org.gobeshona.api.security.services;
 
 import jakarta.validation.Valid;
 import jakarta.validation.ValidationException;
-import org.gobeshona.api.exception.EmailAlreadyExistsException;
-import org.gobeshona.api.exception.InvalidCountryCodeException;
-import org.gobeshona.api.exception.MobileNumberAlreadyExistsException;
+import org.gobeshona.api.exception.*;
 import org.gobeshona.api.models.AuthTypeConstants;
 import org.gobeshona.api.models.User;
 import org.gobeshona.api.repository.CountryRepository;
 import org.gobeshona.api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
@@ -24,6 +23,15 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private CountryRepository countryRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    EmailService emailService;
+
+    @Autowired
+    SmsService smsService;
 
     @Override
     public User createUser(@Valid User user) throws Exception {
@@ -119,6 +127,37 @@ public class UserServiceImpl implements UserService {
         } else {
             throw new ValidationException("User not found");
         }
+    }
+
+    public void resetPassword(String username) throws UserNotFoundException, UserDisabledException {
+//        User user = userRepository.findByUsername(username)
+//                .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
+//
+//        if (!user.getEnabled()) {
+//            throw new UserDisabledException("User is disabled. Please contact the admin.");
+//        }
+//
+        String newPassword = generateRandomPassword();
+//        String encryptedPassword = passwordEncoder.encode(newPassword);
+//
+//
+//        boolean passSendingStatus = false;
+//
+//        if ("email".equalsIgnoreCase(user.getVerificationMethod())) {
+//            passSendingStatus = emailService.sendEmail(user.getEmail(), newPassword);
+//        } else if ("mobile".equalsIgnoreCase(user.getVerificationMethod())) {
+//            passSendingStatus = smsService.sendSms(user.getMobile(), newPassword);
+//        }
+
+        emailService.sendEmail(username, newPassword);
+
+//        user.setPassword(encryptedPassword);
+//        userRepository.save(user);
+
+    }
+
+    private String generateRandomPassword() {
+        return "12345678";
     }
 
     @Override
