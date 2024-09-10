@@ -149,7 +149,7 @@ public class UserServiceImpl implements UserService {
         if ("email".equalsIgnoreCase(user.getVerificationMethod())) {
             passSendingStatus = emailService.sendEmail(user.getEmail(), newPassword);
         } else if ("mobile".equalsIgnoreCase(user.getVerificationMethod())) {
-            passSendingStatus = smsService.sendSms(user.getMobile(), newPassword);
+//            passSendingStatus = smsService.sendSms(user.getMobile(), newPassword);
         }
 
         user.setPassword(encryptedPassword);

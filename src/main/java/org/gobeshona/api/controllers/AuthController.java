@@ -21,6 +21,7 @@ import org.gobeshona.api.payload.response.JwtResponseWeb;
 import org.gobeshona.api.payload.response.MessageResponse;
 import org.gobeshona.api.payload.response.PasswordResetResponse;
 import org.gobeshona.api.security.jwt.JwtUtils;
+import org.gobeshona.api.security.services.SmsService;
 import org.gobeshona.api.security.services.UserDetailsImpl;
 import org.gobeshona.api.security.services.UserServiceImpl;
 import org.modelmapper.ModelMapper;
@@ -58,6 +59,9 @@ public class AuthController {
 
   @Autowired
   private ModelMapper modelMapper;
+
+  @Autowired
+  private SmsService smsService;
 
   @PostMapping("/signin")
   public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
@@ -189,6 +193,11 @@ public class AuthController {
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new PasswordResetResponse(false, "An error occurred while resetting the password."));
     }
+  }
+
+  @GetMapping("/send-sms")
+  public String sendSms(@RequestParam String phoneNumber, @RequestParam String message) {
+    return smsService.sendSms(phoneNumber, message);
   }
 
 
