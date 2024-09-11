@@ -38,26 +38,29 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createUser(@Valid User user) throws Exception {
-        // Validate email and mobile uniqueness
-        if (user.getEmail() != null && userRepository.existsByEmail(user.getEmail())) {
-            throw new EmailAlreadyExistsException("Email is already in use: " + user.getEmail());
-
-        }
-        if (user.getMobile().length() != 0 && userRepository.existsByMobile(user.getMobile())) {
-            throw new MobileNumberAlreadyExistsException("Mobile number is already in use: " + user.getMobile());
-        }
-
-        // Validate country code
-        if (user.getMobile().length() != 0 && !countryRepository.findByCode(user.getCountryMobile()).isPresent()) {
-            throw new InvalidCountryCodeException("Invalid country code: " + user.getCountryMobile());
-        }
 
         // Set usernameType based on email and mobile presence
 
         if (user.getUsernameType().toLowerCase().equals(AuthTypeConstants.EMAIL.toLowerCase())) {
-            user.setUsername(user.getEmail());
+            if (user.getEmail() != null) {
+                throw new NoEmailAddressException("Email can not be empty while user type is email.");
+            } else if (userRepository.existsByEmail(user.getEmail())) {
+                throw new EmailAlreadyExistsException("Email is already in use: " + user.getEmail());
+            } else {
+                user.setUsername(user.getEmail());
+            }
         } else if (user.getUsernameType().toLowerCase().equals(AuthTypeConstants.MOBILE.toLowerCase())) {
-            user.setUsername(user.getMobile());
+            if (user.getMobile().length() != 0) {
+                throw new MobileNumberEmptyException("Mobile can not be empty while user type is email.");
+            } else if (userRepository.existsByMobile(user.getMobile())) {
+                throw new MobileNumberAlreadyExistsException("Mobile number is already in use: " + user.getMobile());
+            } else {
+                // Validate country code
+                if (user.getMobile().length() != 0 && !countryRepository.findByCode(user.getCountryMobile()).isPresent()) {
+                    throw new InvalidCountryCodeException("Invalid country code: " + user.getCountryMobile());
+                }
+                user.setUsername(user.getMobile());
+            }
         } else {
             throw new ValidationException("Either email or mobile must be provided");
         }
@@ -152,7 +155,7 @@ public class UserServiceImpl implements UserService {
             }
         } else if ("mobile".equalsIgnoreCase(user.getVerificationMethod())) {
             try {
-                smsService.sendSms(user.getMobile(), "আপনার নুতুন পাসওয়ার্ড:\n"+newPassword);
+                smsService.sendSms(user.getMobile(), "আপনার নুতুন পাসওয়ার্ড:\n" + newPassword);
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new SMSSendFailException("Failed to send the reset password SMS.");
