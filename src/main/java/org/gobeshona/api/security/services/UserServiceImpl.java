@@ -62,7 +62,7 @@ public class UserServiceImpl implements UserService {
             throw new ValidationException("Either email or mobile must be provided");
         }
 
-        if(!user.getCountryMobile().equals("BD") && user.getVerificationMethod().equals(AuthTypeConstants.MOBILE)){
+        if (!user.getCountryMobile().equals("BD") && user.getVerificationMethod().equals(AuthTypeConstants.MOBILE)) {
             throw new ValidationException("Mobile Number UserName currenlty only possible for Bangladesh");
         }
 
@@ -132,7 +132,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    public void resetPassword(String username) throws UserNotFoundException, UserDisabledException {
+    public void resetPassword(String username) throws UserNotFoundException, UserDisabledException, EmailSendFailException, SMSSendFailException {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
 
@@ -142,20 +142,32 @@ public class UserServiceImpl implements UserService {
 
         String newPassword = generateRandomPassword();
         String encryptedPassword = passwordEncoder.encode(newPassword);
-
-
         boolean passSendingStatus = false;
 
+        // Attempt to send email or SMS based on the user's verification method
         if ("email".equalsIgnoreCase(user.getVerificationMethod())) {
             passSendingStatus = emailService.sendEmail(user.getEmail(), newPassword);
+            if (!passSendingStatus) {
+                throw new EmailSendFailException("Failed to send the reset password email.");
+            }
         } else if ("mobile".equalsIgnoreCase(user.getVerificationMethod())) {
-//            passSendingStatus = smsService.sendSms(user.getMobile(), newPassword);
+            try {
+                smsService.sendSms(user.getMobile(), "আপনার নুতুন পাসওয়ার্ড:\n"+newPassword);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new SMSSendFailException("Failed to send the reset password SMS.");
+            }
+
+
+        } else {
+            throw new IllegalArgumentException("Unknown verification method: " + user.getVerificationMethod());
         }
 
+        // Save the user's new password after successfully sending email/SMS
         user.setPassword(encryptedPassword);
         userRepository.save(user);
-
     }
+
 
     private String generateRandomPassword() {
         // Define the characters for different categories
