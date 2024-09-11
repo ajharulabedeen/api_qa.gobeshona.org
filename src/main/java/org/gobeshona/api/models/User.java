@@ -9,6 +9,7 @@ import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.UniqueElements;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -32,23 +33,23 @@ public class User {
   @NotEmpty(message = "First name is required")
   private String firstName;
 
-  @NotEmpty(message = "Last name is required")
+  @NotEmpty(message = "Last name is required.")
   private String lastName;
 
-  @Email(message = "Email should be valid")
-  @Column(unique = true)
+  @Email(message = "Email should be valid.")
   private String email;
 
 //  @Column(unique = true)
   private String mobile;
 
-  @NotNull(message = "Country code is required")
+  @NotNull(message = "Country code is required.")
   private String countryMobile;
 
-  @NotEmpty(message = "Last name is required")
+  @NotEmpty(message = "Username name is required.")
+  @Column(unique = true)
   private String username;
 
-  @NotNull(message = "Username type is required")
+  @NotNull(message = "Username type is required.")
   private String usernameType;
 
   @NotNull(message = "Username type is required")

@@ -44,19 +44,23 @@ public class UserServiceImpl implements UserService {
         if (user.getUsernameType().toLowerCase().equals(AuthTypeConstants.EMAIL.toLowerCase())) {
             if (user.getEmail() != null) {
                 throw new NoEmailAddressException("Email can not be empty while user type is email.");
-            } else if (userRepository.existsByEmail(user.getEmail())) {
-                throw new EmailAlreadyExistsException("Email is already in use: " + user.getEmail());
-            } else {
+            }
+//            else if (userRepository.existsByEmail(user.getEmail())) {
+//                throw new EmailAlreadyExistsException("Email is already in use: " + user.getEmail());
+//            }
+            else {
                 user.setUsername(user.getEmail());
             }
         } else if (user.getUsernameType().toLowerCase().equals(AuthTypeConstants.MOBILE.toLowerCase())) {
-            if (user.getMobile().length() != 0) {
+            if (user.getMobile().length() == 0) {
                 throw new MobileNumberEmptyException("Mobile can not be empty while user type is email.");
-            } else if (userRepository.existsByMobile(user.getMobile())) {
-                throw new MobileNumberAlreadyExistsException("Mobile number is already in use: " + user.getMobile());
-            } else {
+            }
+//            else if (userRepository.existsByMobile(user.getMobile())) {
+//                throw new MobileNumberAlreadyExistsException("Mobile number is already in use: " + user.getMobile());
+//            }
+            else {
                 // Validate country code
-                if (user.getMobile().length() != 0 && !countryRepository.findByCode(user.getCountryMobile()).isPresent()) {
+                if (!countryRepository.findByCode(user.getCountryMobile()).isPresent()) {
                     throw new InvalidCountryCodeException("Invalid country code: " + user.getCountryMobile());
                 }
                 user.setUsername(user.getMobile());
