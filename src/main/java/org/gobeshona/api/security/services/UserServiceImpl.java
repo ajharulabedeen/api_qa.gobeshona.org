@@ -43,7 +43,7 @@ public class UserServiceImpl implements UserService {
         // Set usernameType based on email and mobile presence
 
         if (user.getUsernameType().toLowerCase().equals(AuthTypeConstants.EMAIL.toLowerCase())) {
-            if (user.getEmail() != null) {
+            if (user.getEmail() == null) {
                 throw new NoEmailAddressException("Email can not be empty while user type is email.");
             }
 //            else if (userRepository.existsByEmail(user.getEmail())) {
